@@ -7,12 +7,10 @@ use std::fs::{File};
 use std::io::{self, BufRead};
 use std::path::Path;
 
-
 fn main() {
     let mut current_cal_value: i32 = 0;
-    let mut highest_cal_value: i32 = 0;
-    let mut second_highest_cal_value: i32 = 0;
-    let mut third_highest_cal_value: i32 = 0;
+ 
+    let mut input:Vec<i32> = vec![];
 
     if let Ok(lines) = read_lines("input.txt") {
         // Consumes the iterator, returns an (Optional) String
@@ -23,23 +21,10 @@ fn main() {
                     Ok(_n) => {
                         let current_line_cal_value: i32 = value.parse().unwrap(); 
                         current_cal_value = current_cal_value + current_line_cal_value;
-
-                        println!("{}", current_cal_value);
                     }
                     Err(_e) => {
                         if value.is_empty() {
-
-                            println!("--- Next Elf ---");
-
-                            if current_cal_value > highest_cal_value  {
-                                highest_cal_value = current_cal_value;
-                            }
-                            if current_cal_value > second_highest_cal_value && current_cal_value < highest_cal_value && current_cal_value > third_highest_cal_value {
-                                second_highest_cal_value = current_cal_value;
-                            }
-                            if current_cal_value > third_highest_cal_value && current_cal_value < second_highest_cal_value {
-                                third_highest_cal_value = current_cal_value;
-                            }
+                            input.push(current_cal_value);
 
                             current_cal_value = 0;
                             continue;
@@ -53,12 +38,24 @@ fn main() {
         }
     }
 
-    let top_three_value = highest_cal_value + second_highest_cal_value + third_highest_cal_value;
+    input.sort_by(|b, a| a.partial_cmp(b).unwrap());
+    input.truncate(3);
 
-    println!("Highest Value: {}", highest_cal_value);
-    println!("Second Highest Value: {}", second_highest_cal_value);
-    println!("Third Highest Value: {}", third_highest_cal_value);
+    println!("Highest individual cal value: {:?}", first(&input).unwrap());
+
+    let mut top_three_value = 0;
+
+    for i in input {
+        let total: i32 = i;
+        top_three_value += total;
+    }
+    
+
     println!("The three Elves carrying the most calories, carry in total {} calories", top_three_value);
+}
+
+fn first<T>(v: &Vec<T>) -> Option<&T> {
+    v.first()
 }
 
 // from: rust-by-example
